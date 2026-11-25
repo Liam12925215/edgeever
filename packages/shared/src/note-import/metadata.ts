@@ -1,6 +1,7 @@
 import { getMappedNoteProperties, splitMarkdownFrontMatter } from "../front-matter";
-import type { ImportIndex, ImportNote } from "./types";
+import type { ImportFormat, ImportIndex, ImportNote } from "./types";
 import { addIssue } from "./sources";
+import { markdownExportTitle } from "./markdown-export";
 
 export const importTime = (value: unknown): string | undefined => {
   if (typeof value !== "string" || !value.trim()) return;
@@ -15,14 +16,14 @@ export const importTime = (value: unknown): string | undefined => {
   if (Number.isNaN(date.getTime())) return;
   return date.toISOString();
 };
-export const readMarkdownMetadata = async (markdown: string, title: string, index: ImportIndex, path: string) => {
+export const readMarkdownMetadata = async (markdown: string, title: string, index: ImportIndex, path: string, format: ImportFormat) => {
   // The editor's interactive parsing budget is not an import/storage limit.
   const header = splitMarkdownFrontMatter(markdown, { maxSourceLength: Infinity });
   if (header?.error) await addIssue(index, "invalidProperties", path, "error", header.error);
   const values = header?.values ?? {};
   const mapped = getMappedNoteProperties(values);
   // Do not let the ordinary single-file import's title fallback hide a limit violation.
-  const rawTitle = typeof values.title === "string" ? values.title.trim() : mapped.title ?? title;
+  const rawTitle = typeof values.title === "string" ? values.title.trim() : markdownExportTitle(format, header?.body ?? markdown, title);
   const times: { createdAt?: string; updatedAt?: string } = {};
   for (const [a, b] of [["created", "createdAt"], ["updated", "updatedAt"]] as const) {
     const first = importTime(values[a]);
@@ -44,6 +45,9 @@ export const prepareImportNote = async (index: ImportIndex, note: ImportNote) =>
     if (resource.byteSize <= 0 || resource.byteSize > maximum) await addIssue(index, "resourceSize", note.path, "error", resource.filename);
   }
 };
+export const escapeImportText = (text: string) => text.replace(/[\r\n]+/g, " ").replace(/[\\`*_[\]<>!#]/g, "\\$&");
+export const invalidImportResourceSize = (resource: { mimeType: string; byteSize: number }) =>
+  resource.byteSize <= 0 || resource.byteSize > (resource.mimeType.startsWith("image/") ? 100 * 1024 * 1024 : 1024 * 1024 * 1024);
 export const mimeFromName = (name: string) => {
   const extension = name.split(".").at(-1)?.toLowerCase();
   const types: Record<string, string> = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", svg: "image/svg+xml", avif: "image/avif", bmp: "image/bmp", pdf: "application/pdf", txt: "text/plain", csv: "text/csv", md: "text/markdown", mp3: "audio/mpeg", mp4: "video/mp4", json: "application/json", zip: "application/zip" };

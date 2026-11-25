@@ -24,6 +24,8 @@ describe("native release planning", () => {
       "packages/shared/src/index.ts",
       "bun.lock",
       "scripts/build-android-local.sh",
+      "scripts/prepare-mobile-icons.mjs",
+      "assets/brand/edgeever-icon.svg",
       "apps/desktop/src/main/wechat-chat-transcript.cjs",
       "scripts/verify-android-apk-signature.mjs",
       ".github/workflows/mobile-build.yml",
@@ -65,6 +67,7 @@ describe("native release planning", () => {
     const changedFiles = [
       "apps/web/src/app/App.tsx",
       "apps/desktop/src/main/index.mjs",
+      "packages/image-host/src/imgbed-client.mjs",
       "packages/shared/src/index.ts",
     ];
     expect(planNativeRelease("desktop", changedFiles)).toEqual({
@@ -80,6 +83,7 @@ describe("native release planning", () => {
       "scripts/create-mac-update-metadata.mjs",
       "scripts/create-windows-update-metadata.mjs",
       "scripts/prepare-desktop-icons.mjs",
+      "assets/brand/edgeever-icon.svg",
       "scripts/desktop-icns.mjs",
       "scripts/pe-imports.mjs",
       "scripts/run-desktop-builder.mjs",

@@ -13,18 +13,10 @@ import {
   writeEditorPhonePreviewFollowPreference,
 } from "@/lib/app-helpers";
 
-export const PhonePreviewGlyph = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 16 16" className={className} fill="none" aria-hidden="true">
-    <rect x="3.6" y="1.1" width="8.8" height="13.8" rx="2" stroke="currentColor" strokeWidth="1.4" />
-    <rect x="5.15" y="3.35" width="5.7" height="7.15" rx="0.55" fill="currentColor" opacity="0.2" />
-    <rect x="6.35" y="2.15" width="3.3" height="0.85" rx="0.42" fill="currentColor" />
-    <rect x="6.7" y="12.55" width="2.6" height="0.7" rx="0.35" fill="currentColor" />
-  </svg>
-);
-
 type EditorPhonePreviewProps = {
   editor: Editor | null;
   title?: string;
+  tagsKey?: string;
   showMagazineCover: boolean;
   showChapterNavigation: boolean;
   noteProse: ResolvedNoteProse;
@@ -66,7 +58,7 @@ const alignElement = (scroller: HTMLElement, target: HTMLElement, viewportTop: n
   scroller.scrollTop += delta;
 };
 
-export const EditorPhonePreview = ({ editor, title, showMagazineCover, showChapterNavigation, noteProse, scrollContainer, className }: EditorPhonePreviewProps) => {
+export const EditorPhonePreview = ({ editor, title, tagsKey, showMagazineCover, showChapterNavigation, noteProse, scrollContainer, className }: EditorPhonePreviewProps) => {
   const { t } = useTranslation();
   const { mermaidTheme } = useMermaidTheme();
   const noteProseStyle = useNoteProseStylePreference();
@@ -107,7 +99,7 @@ export const EditorPhonePreview = ({ editor, title, showMagazineCover, showChapt
       editor.off("update", sync);
       editor.off("create", sync);
     };
-  }, [editor, mermaidTheme, noteProse, noteProseStyle, showMagazineCover, showChapterNavigation, title]);
+  }, [editor, mermaidTheme, noteProse, noteProseStyle, showMagazineCover, showChapterNavigation, title, tagsKey]);
 
   useEffect(() => {
     previewRef.current?.setAttribute("style", markup.style);
